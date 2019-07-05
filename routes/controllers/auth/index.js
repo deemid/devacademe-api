@@ -1,5 +1,5 @@
-const redisClient = require('../../redisClient')
-const User = require('../../models/user')
+const redisClient = require('../../../redisClient')
+const User = require('../../../models/user')
 
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
