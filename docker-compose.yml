@@ -1,0 +1,43 @@
+version: '3.7'
+
+services:
+
+  # Redis
+  devacademe_redis:
+    image: redis
+    ports:
+      - "6379:6379"
+
+  # MongoDB
+  devacademe_mongo:
+    image: mongo:latest
+    container_name: devacademe_mongo
+    environment:
+      - MONGO_DATA_DIR=/data/db
+      - MONGO_LOG_DIR=/dev/null
+    volumes:
+      - ~/data/db:/data/db
+    ports:
+        - "27017:27017"
+    command: mongod --smallfiles --logpath=/dev/null # --quiet
+
+  # Back end API
+  devacademe_api:
+    container_name: devacademe
+    # image: node:10.16.0
+    build: ./
+    command: npm start
+    working_dir: /usr/src/api
+    restart: on-failure
+    depends_on: ["devacademe_mongo"]
+    environment:
+      REDIS_URL: redis://devacademe_redis:6379
+      MONGODB_URI: mongodb://devacademe_mongo:27017/devacademe
+      WAIT_HOSTS: mongo:27017
+    links:
+      - devacademe_redis
+      - devacademe_mongo
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./:/usr/src/api
